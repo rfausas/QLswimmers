@@ -3,15 +3,22 @@ import copy
 import random
 
 # Once and for all (do not mix np.random and random)
-np.random.seed(seed=0) 
+np.random.seed(seed=0)
+
+# Partition of the circle
+Nangs = 4
+delta_ang = 2*np.pi/Nangs
 
 # Number of balls
 nballs = 4
 nlinks = nballs - 1
-nstates = 2 ** nlinks
+
+# States-Actions
+
+nstates = 2 ** nlinks + Nangs
 nactions = nlinks
 
-# Numerical parameter
+# Xposition_cm, Yposition_cm, Xposition_head, Yposition_head, Theta_head, Viscous_dissipation
 ndeltas = 6
    
 def ReadDeltasTables(ndeltas, nstates, nactions, filetable):

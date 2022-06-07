@@ -55,7 +55,7 @@ advancing_mode = "CM"  # CM: Tracking center of mass
 # --- Loop over steps
 
 evolqlquantities_file = open('evolqlquantities.txt', 'a+')
-steps = 50000
+steps = 1000000
 
 evolqlquantities_file.write("Statei,Action,Staten,xcmi,ycmi,xcmn,ycmn,thetai,thetan\n")
 evolqlquantities_file.flush()

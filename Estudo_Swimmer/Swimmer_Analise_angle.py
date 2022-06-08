@@ -14,8 +14,8 @@ nballs = 4
 nlinks = nballs - 1
 
 # States-Actions
-
-nstates = 2 ** nlinks + Nangs
+nstates      = 2 ** nlinks          # internals
+nstates_glob = 2 ** nlinks + Nangs  # Total
 nactions = nlinks
 
 # Xposition_cm, Yposition_cm, Xposition_head, Yposition_head, Theta_head, Viscous_dissipation
@@ -72,7 +72,8 @@ for it in range(steps):
     action2exec = choose_action()
     action = np.argmax(action2exec)
     next_state = compute_next_state(current_state, action2exec)
-    
+
+    # Internal states
     current_state_dec = int(np.dot(current_state, 2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))      
     current_state_decn = int(np.dot(next_state, 2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))
         
@@ -96,7 +97,24 @@ for it in range(steps):
     xc_swimmer_n = copy.deepcopy(xc_swimmer)
     xc_swimmer += Rmatrix @ current_disp
     theta_swimmer_n = theta_swimmer
-    theta_swimmer += current_dtheta     
+    theta_swimmer += current_dtheta
+
+    def ComputeAngleBody(theta_head, internal_state, opt_ang):
+
+        if(opt_ang == 1):
+            angle_state =
+        elif(opt_ang == 2):
+            angle_state = 
+            
+        itheta = int()
+        
+        return angle_state, itheta
+
+    angle_state,  itheta = ComputeAngleBody()
+    angle_staten, ithetan = ComputeAngleBody()
+    
+    current_state_dec_glob = current_state_dec + itheta * nstates
+    current_state_decn_glob = current_state_decn + ithetan * nstates
     
     evolqlquantities_file.write("%d,%d,%d,%.10e,%.10e,%.10e,%.10e,%.10e,%.10e\n" % 
                                               (current_state_dec,action,

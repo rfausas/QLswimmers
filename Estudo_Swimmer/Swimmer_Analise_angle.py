@@ -8,6 +8,7 @@ np.random.seed(seed=0)
 # Partition of the circle
 Nangs = 4
 delta_ang = 2*np.pi/Nangs
+opt_ang = 1
 
 # Number of balls
 nballs = 4
@@ -40,7 +41,21 @@ def choose_action():
     return ret
 
 def compute_next_state(current_state, action):
-    return np.remainder(current_state + action, 2 * np.ones(nlinks, dtype=int))   
+    return np.remainder(current_state + action, 2 * np.ones(nlinks, dtype=int))
+
+def ComputeAngleStateBody(theta_head, internal_state, opt_ang):
+
+    if(opt_ang == 1):
+        angle_state = theta_head
+    elif(opt_ang == 2):
+        angle_state = 0.0
+
+    if(theta_head < 0.0):
+        theta_head += 2*np.pi
+    thetap = theta_head - int(theta_head/(2*np.pi))*2*np.pi
+    itheta = int(thetap/delta_ang)
+    
+    return angle_state, itheta
 
 # Geometry and position
 Lx, Ly = 3 * 150.0, 3 * 150.0  # Check consistency with ComputeStep()
@@ -62,7 +77,7 @@ advancing_mode = "CM"  # CM: Tracking center of mass
 # --- Loop over steps
 
 evolqlquantities_file = open('evolqlquantities.txt', 'a+')
-steps = 1000000
+steps = 10000
 
 evolqlquantities_file.write("Statei,Action,Staten,xcmi,ycmi,xcmn,ycmn,thetai,thetan\n")
 evolqlquantities_file.flush()
@@ -99,29 +114,18 @@ for it in range(steps):
     theta_swimmer_n = theta_swimmer
     theta_swimmer += current_dtheta
 
-    def ComputeAngleBody(theta_head, internal_state, opt_ang):
+    angle_state,  itheta  = ComputeAngleStateBody(theta_swimmer,   current_state, opt_ang)
+    angle_staten, ithetan = ComputeAngleStateBody(theta_swimmer_n, next_state,   opt_ang)
 
-        if(opt_ang == 1):
-            angle_state =
-        elif(opt_ang == 2):
-            angle_state = 
-            
-        itheta = int()
-        
-        return angle_state, itheta
-
-    angle_state,  itheta = ComputeAngleBody()
-    angle_staten, ithetan = ComputeAngleBody()
-    
-    current_state_dec_glob = current_state_dec + itheta * nstates
+    current_state_dec_glob  = current_state_dec  + itheta  * nstates
     current_state_decn_glob = current_state_decn + ithetan * nstates
     
     evolqlquantities_file.write("%d,%d,%d,%.10e,%.10e,%.10e,%.10e,%.10e,%.10e\n" % 
-                                              (current_state_dec,action,
-                                              current_state_decn,
-                                              xc_swimmer_n[0],xc_swimmer_n[1],
-                                              xc_swimmer[0],xc_swimmer[1],
-                                              theta_swimmer_n,theta_swimmer))               
+                                              (current_state_dec_glob,action,
+                                               current_state_decn_glob,
+                                               xc_swimmer_n[0],xc_swimmer_n[1],
+                                               xc_swimmer[0],xc_swimmer[1],
+                                               theta_swimmer_n,theta_swimmer))               
     evolqlquantities_file.flush()
     current_state = copy.deepcopy(next_state) 
 

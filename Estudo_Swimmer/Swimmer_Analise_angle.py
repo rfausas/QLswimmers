@@ -16,7 +16,7 @@ nlinks = nballs - 1
 
 # States-Actions
 nstates      = 2 ** nlinks          # internals
-nstates_glob = 2 ** nlinks + Nangs  # Total
+nstates_glob = (2 ** nlinks) * Nangs  # Total
 nactions = nlinks
 
 # Xposition_cm, Yposition_cm, Xposition_head, Yposition_head, Theta_head, Viscous_dissipation
@@ -57,21 +57,17 @@ def ComputeAngleStateBody(theta_head, internal_state, opt_ang):
     
     return angle_state, itheta
 
-# Geometry and position
+# Geometry and initial position
 Lx, Ly = 3 * 150.0, 3 * 150.0  # Check consistency with ComputeStep()
-xc_swimmer = np.array([Lx / 2.0, Ly / 2.0])
-xc_swimmer_n = np.array([Lx / 2.0, Ly / 2.0])
-theta_swimmer = 0.0
+current_xc_swimmer = np.array([Lx / 2.0, Ly / 2.0])
+current_theta_swimmer = 0.0001
 current_disp = np.zeros(2)
 current_state = np.zeros(nlinks, dtype=int)  # As a vector
-
 for i in range(nlinks):
     current_state[i] = random.randint(0, 1)
 
-current_state_dec_ini = int(np.dot(current_state, 2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))        
-
 advancing_mode = "CM"  # CM: Tracking center of mass
-# LB: Tracking position of reference body (leftmost)
+                       # LB: Tracking position of reference body (leftmost)
 
 # -----------------------------
 # --- Loop over steps
@@ -79,7 +75,7 @@ advancing_mode = "CM"  # CM: Tracking center of mass
 evolqlquantities_file = open('evolqlquantities.txt', 'a+')
 steps = 10000
 
-evolqlquantities_file.write("Statei,Action,Staten,xcmi,ycmi,xcmn,ycmn,thetai,thetan\n")
+evolqlquantities_file.write("current_state, action, next_state, current_xcm, current_ycm, next_xcm, next_ycm, current_theta, next_theta\n")
 evolqlquantities_file.flush()
 for it in range(steps):              
     
@@ -90,7 +86,7 @@ for it in range(steps):
 
     # Internal states
     current_state_dec = int(np.dot(current_state, 2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))      
-    current_state_decn = int(np.dot(next_state, 2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))
+    next_state_dec    = int(np.dot(next_state,    2 ** np.arange(nlinks - 1, -1, -1, dtype=int)))
         
     if advancing_mode == "CM":
         current_disp[0] = Deltas[0][current_state_dec, action]
@@ -101,33 +97,35 @@ for it in range(steps):
 
     current_dtheta = Deltas[2][current_state_dec, action]       
 
+    theta = current_theta_swimmer
     Rmatrix = np.array(
         [
-            [np.cos(theta_swimmer), -np.sin(theta_swimmer)],
-            [np.sin(theta_swimmer), np.cos(theta_swimmer)],
+            [np.cos(theta), -np.sin(theta)],
+            [np.sin(theta), np.cos(theta)],
         ]
     )
 
     # Update dofs -------------------------
-    xc_swimmer_n = copy.deepcopy(xc_swimmer)
-    xc_swimmer += Rmatrix @ current_disp
-    theta_swimmer_n = theta_swimmer
-    theta_swimmer += current_dtheta
+    next_xc_swimmer = current_xc_swimmer + Rmatrix @ current_disp
+    next_theta_swimmer = current_theta_swimmer + current_dtheta
 
-    angle_state,  itheta  = ComputeAngleStateBody(theta_swimmer,   current_state, opt_ang)
-    angle_staten, ithetan = ComputeAngleStateBody(theta_swimmer_n, next_state,   opt_ang)
+    current_angle_state,  current_itheta  = ComputeAngleStateBody(current_theta_swimmer, current_state, opt_ang)
+    next_angle_state,     next_itheta     = ComputeAngleStateBody(next_theta_swimmer,    next_state,    opt_ang)
 
-    current_state_dec_glob  = current_state_dec  + itheta  * nstates
-    current_state_decn_glob = current_state_decn + ithetan * nstates
+    current_state_dec_glob  = current_state_dec  + current_itheta  * nstates
+    next_state_dec_glob     = next_state_dec     + next_itheta * nstates
     
     evolqlquantities_file.write("%d,%d,%d,%.10e,%.10e,%.10e,%.10e,%.10e,%.10e\n" % 
-                                              (current_state_dec_glob,action,
-                                               current_state_decn_glob,
-                                               xc_swimmer_n[0],xc_swimmer_n[1],
-                                               xc_swimmer[0],xc_swimmer[1],
-                                               theta_swimmer_n,theta_swimmer))               
+                                              (current_state_dec_glob, action,
+                                               next_state_dec_glob,
+                                               current_xc_swimmer[0], current_xc_swimmer[1],
+                                               next_xc_swimmer[0], next_xc_swimmer[1],
+                                               current_theta_swimmer, next_theta_swimmer))               
     evolqlquantities_file.flush()
-    current_state = copy.deepcopy(next_state) 
+    #raise Exception ('jajaj')
+    current_state = copy.deepcopy(next_state)
+    current_xc_swimmer = copy.deepcopy(next_xc_swimmer)
+    current_theta_swimmer = next_theta_swimmer
 
     # --- End loop over steps
     # --------------------------------  

@@ -72,7 +72,7 @@ def Animacao(nballs,current_state_dec,filetable):
     radih[0] = 0.25
     xc = [np.array([Lx/2.,Ly/2.,0.]) for ib in range(nballs)]
     th = [0. for ib in range(nballs)]
-    th[0] = -np.pi/4 #angulo inicial da cabeça
+    th[0] = 0.0 #angulo inicial da cabeça
     Qr = [rotation_matrix(th[ib]) for ib in range(nballs)]
        
     #Lista de ações em decimais para ser executada

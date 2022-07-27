@@ -63,8 +63,8 @@ def Animacao(nballs,current_state_dec,filetable):
     it = 0
     time = 0
     dt = 0.1
-    amin = -45*np.pi/180
-    amax = 45*np.pi/180
+    amin = -10*np.pi/180
+    amax = 10*np.pi/180
     taction = 1.0
     radii = [1.0 for ib in range(nballs)]
     radih = [0.2 for ib in range(nballs)]
@@ -72,7 +72,7 @@ def Animacao(nballs,current_state_dec,filetable):
     radih[0] = 0.25
     xc = [np.array([Lx/2.,Ly/2.,0.]) for ib in range(nballs)]
     th = [0. for ib in range(nballs)]
-    th[0] = np.pi/4 #angulo inicial da cabeça
+    th[0] = -np.pi/4 #angulo inicial da cabeça
     Qr = [rotation_matrix(th[ib]) for ib in range(nballs)]
        
     #Lista de ações em decimais para ser executada
@@ -99,9 +99,10 @@ def Animacao(nballs,current_state_dec,filetable):
             Y = xc[ib][1] + Qr[ib][1,0]*radii[ib]*np.cos(theta) + Qr[ib][1,1]*radih[ib]*np.sin(theta)
             color = 'gray' if ib != 0 else 'red'
             if(it%freq_frame == 0):
-                plt.plot(X,Y,color=color)      
+                plt.plot(X,Y,color=color)
         
         if(it%freq_frame == 0):
+            plt.plot(xc[ib][0], xc[ib][1], color=color)
             plt.xlim(150,300)
             plt.ylim(150,300)
             plt.gca().set_aspect('equal', adjustable='box')

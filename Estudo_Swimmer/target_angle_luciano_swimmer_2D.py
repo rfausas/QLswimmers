@@ -1,14 +1,14 @@
-from dolfin import *
+#from dolfin import *
 
 import numpy as np
 import copy
 import random
 import time as tim
 
-from libcommon.user_utils import *
-from libcommon.build_geometry import *
-from libcommon.configurational_dofs import *
-from libcommon.variational_formulation import *
+#from libcommon.user_utils import *
+#from libcommon.build_geometry import *
+#from libcommon.configurational_dofs import *
+#from libcommon.variational_formulation import *
 from libcommon.ql import *
 
 import psutil
@@ -545,16 +545,16 @@ elif(run_mode == 2 or run_mode == 4 or run_mode == 5):
     #Hyperparameters 
     GAMMA = 0.9999
     ALPHA = 1
-    MAX_EPSILON = 0.5
-    MIN_EPSILON = 0.5
+    MAX_EPSILON = 0.2
+    MIN_EPSILON = 0.2
     LAMBDA   = 0.1e-03 
-    N_QL_steps = 100000
+    N_QL_steps = 400000
     
     # Geometry and position
     Lx, Ly        = 3*150., 3*150. # Check consistency with ComputeStep()
     xc_swimmer    = np.array([Lx/2.0, Ly/2.0])
     xc_swimmer_n  = np.array([Lx/2.0, Ly/2.0])
-    theta_swimmer = 0.0
+    theta_swimmer = -np.pi/4
     current_disp  = np.zeros(2)
     current_state = np.zeros(nlinks, dtype=int) # As a vector    
     #current_state = np.ones(nlinks, dtype=int) # As a vector    
@@ -580,7 +580,7 @@ elif(run_mode == 2 or run_mode == 4 or run_mode == 5):
     ac_file = open('actions.txt', 'w+')
     total_reward  = 0.0
     tt, taction = 0.0, 1.0
-    angletarget = 0.25*np.pi
+    angletarget = -np.pi/2
     nstepstest = 0
     alist = []
     for it in range(N_QL_steps):
